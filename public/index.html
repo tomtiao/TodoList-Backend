@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <script>
+        function createListItem(obj, container, api) {
+            for (const item of obj) {
+                const newItem = document.createElement('li');
+                const link = document.createElement('a');
+
+                link.textContent = item.Content;
+                link.href = `${api}/${item.Id}`;
+                newItem.append(link);
+                container.append(newItem);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () =>{ 
+            const getAllBtn = document.querySelector('button#get-all');
+            const resultContainer = document.querySelector('.result');
+            const API = '/todo';
+            getAllBtn.addEventListener('click', async () => {
+                let res;
+                try {
+                    resultContainer.textContent = 'Loading...';
+                    res = await fetch(API);
+                    if (res.ok) {
+                        const obj = await res.json();
+                        resultContainer.textContent = '';
+                        createListItem(obj, resultContainer, API);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    resultContainer.textContent = 'Something went wrong.';
+                }
+            });
+
+            const searchByKW = document.querySelector('form#searchByKW');
+            searchByKW.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const kwField = searchByKW.querySelector(`input#kw`);
+                const queryKw = new URLSearchParams([[kwField.name, kwField.value]]);
+                const queryStr = `${API}?${queryKw.toString()}`;
+                try {
+                    resultContainer.textContent = 'Loading...';
+                    const res = await fetch(queryStr);
+                    if (res.ok) {
+                        const obj = await res.json();
+                        resultContainer.textContent = '';
+                        createListItem(obj, resultContainer, API);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    resultContainer.textContent = 'Something went wrong.';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <button type="button" id="get-all">Get all todos</button>
+    <form id="searchByKW">
+        <label for="kw">Search by keyword: </label>
+        <input type="text" name="kw" id="kw">
+        <button type="submit">Search</button>
+    </form>
+    <ul class="result"></ul>
+</body>
+</html>
