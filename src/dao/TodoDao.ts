@@ -2,7 +2,8 @@ import { QueryError } from "mysql2";
 import { Todo, TodoPartial } from "../todo/Todo";
 
 interface queryCallback<ReturnType> {
-    (err: QueryError | null, res?: ReturnType): void;
+    (err: QueryError, res?: undefined): void;
+    (err: null, res: ReturnType): void;
 }
 
 interface TodoDao {
