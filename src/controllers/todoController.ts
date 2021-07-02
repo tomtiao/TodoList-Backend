@@ -78,11 +78,11 @@ router.route('/:id')
         res.header('Allow', todo_id_options)
             .sendStatus(204);
     })
-    .get((_req, res, next) => {
+    .all((_, res, next) => {
         (res.locals.todoDao as TodoDao) = new TodoDaoImpl(res.locals.pool);
         next();
-    },
-    (req, res) => {
+    })
+    .get((req, res) => {
         (res.locals.todoDao as TodoDao).getTodoById( +(req.params.id) , (err, result) => {
             if (err) {
                 console.error(err);
