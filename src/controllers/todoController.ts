@@ -6,22 +6,20 @@ import { todo_id_options, todo_options } from '../todo/Todo';
 import { createTodoPartial } from '../util/createTodoPartial';
 
 const router = express.Router();
-let todoDao: TodoDao;
-
 router.route('/')
     .options((_, res) => {
         res.header('Allow', todo_options)
             .sendStatus(204);
     })
-    .all((_req, res, next) => {
-        todoDao = new TodoDaoImpl(res.locals.pool);
+    .all((_, res, next) => {
+        (res.locals.todoDao as TodoDao) = new TodoDaoImpl(res.locals.pool);
         next();
     })
     .get((req, res, next) => {
             if (Object.keys(req.query).length > 0) {
                 next();
             } else {
-                todoDao.getAllTodo((err, result) => {
+                (res.locals.todoDao as TodoDao).getAllTodo((err, result) => {
                     if (err) {
                         console.error(err);
                         res.sendStatus(500);
@@ -35,7 +33,7 @@ router.route('/')
                 if (req.query.kw.length === 0) {
                     res.json([]);
                 } else {
-                    todoDao.getTodoByKeyword(req.query.kw, (err, result) => {
+                    (res.locals.todoDao as TodoDao).getTodoByKeyword(req.query.kw, (err, result) => {
                         if (err) {
                             console.error(err);
                             res.sendStatus(500);
@@ -51,7 +49,7 @@ router.route('/')
     .post((req, res) => {
         if (typeof req.body.Content === 'string') {
             const newTodo = createTodoPartial(req.body);
-            todoDao.addTodo(newTodo, (err, id) => {
+            (res.locals.todoDao as TodoDao).addTodo(newTodo, (err, id) => {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -81,11 +79,11 @@ router.route('/:id')
             .sendStatus(204);
     })
     .get((_req, res, next) => {
-        todoDao = new TodoDaoImpl(res.locals.pool);
+        (res.locals.todoDao as TodoDao) = new TodoDaoImpl(res.locals.pool);
         next();
     },
     (req, res) => {
-        todoDao.getTodoById( +(req.params.id) , (err, result) => {
+        (res.locals.todoDao as TodoDao).getTodoById( +(req.params.id) , (err, result) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
@@ -101,7 +99,7 @@ router.route('/:id')
     .put((req, res) => {
         const id = +(req.params.id);
         const partialTodo = createTodoPartial(req.body);
-        todoDao.updateTodo(id, partialTodo, (err, affectedRows) => {
+        (res.locals.todoDao as TodoDao).updateTodo(id, partialTodo, (err, affectedRows) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
@@ -118,7 +116,7 @@ router.route('/:id')
     })
     .delete((req, res) => {
         const id = +(req.params.id);
-        todoDao.deleteTodo(id, (err, affectedRows) => {
+        (res.locals.todoDao as TodoDao).deleteTodo(id, (err, affectedRows) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
