@@ -5,6 +5,7 @@ import { TodoDao } from '../dao/TodoDao';
 import { todo_id_options, todo_options } from '../todo/Todo';
 import { createTodoPartial } from '../util/createTodoPartial';
 
+// TODO: Add meaningful message in the response
 const router = express.Router();
 router.route('/')
     .options((_, res) => {
@@ -48,7 +49,13 @@ router.route('/')
         })
     .post((req, res) => {
         if (typeof req.body.Content === 'string') {
-            const newTodo = createTodoPartial(req.body);
+            let newTodo;
+            try {
+                newTodo = createTodoPartial(req.body);
+            } catch (e) {
+                res.sendStatus(400);
+                return;
+            }
             (res.locals.todoDao as TodoDao).addTodo(newTodo, (err, id) => {
                 if (err) {
                     console.error(err);
@@ -98,7 +105,13 @@ router.route('/:id')
     })
     .put((req, res) => {
         const id = +(req.params.id);
-        const partialTodo = createTodoPartial(req.body);
+        let partialTodo;
+        try {
+            partialTodo = createTodoPartial(req.body);
+        } catch (e) {
+            res.sendStatus(400);
+            return;
+        }
         (res.locals.todoDao as TodoDao).updateTodo(id, partialTodo, (err, affectedRows) => {
             if (err) {
                 console.error(err);

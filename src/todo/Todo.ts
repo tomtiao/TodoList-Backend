@@ -1,6 +1,6 @@
 type Timestamp = number;
 
-interface Todo extends Record<string, unknown> {
+interface Todo {
     Id: number;
     Content: string;
     Note: string | null;
