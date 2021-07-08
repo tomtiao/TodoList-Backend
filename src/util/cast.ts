@@ -14,13 +14,13 @@ function castResultsToTodo(rows: RowDataPacket[], fields: ActualFieldPacket[]): 
     return rows.map(row => {
         const typeCastedRow = row as Todo;
         fields.forEach(field => {
-            const name = field.name;
+            const name = field.name as keyof Todo;
             const v = row[name];
-            if (field.columnType === 0x01) { // TINY is 0x01, from mysql2/lib/constants/types.js
-                typeCastedRow[name] = (v === 1);
+            if (field.columnType === 0x01 && (name === 'Flagged' || name === 'Completed')) { // TINY is 0x01, from mysql2/lib/constants/types.js
+                (typeCastedRow[name] as boolean) = (v === 1);
             } else if ((field.columnType === 0x0c) && (v !== null)) {
                 // DATETIME is 0x0c. ReminderTime may be null.
-                typeCastedRow[name] = (v as Date).getTime();
+                (typeCastedRow[name] as number) = (v as Date).getTime();
             }
         });
         return typeCastedRow;
