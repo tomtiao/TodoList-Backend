@@ -33,11 +33,25 @@ const server = app.listen(PORT, () => {
     console.log(`Listening port ${PORT}.`);
 });
 
-process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing server...');
+function closeServer() {
+    pool.end(err => {
+        if (err) {
+            console.error(err)
+        }
+    });
     server.close(() => {
         console.log('server closed.')
     });
+}
+
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing server...');
+    closeServer();
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT signal received: closing server...');
+    closeServer();
 });
 
 export default app;
