@@ -48,18 +48,22 @@
 
 1. 如果 id > 0 && id <= Number.MAX_VALUE
 
-```
-interface Todo extends Record<string, unknown> {
-    Id: number;
-    Content: string;
-    Note: string | null;
-    CreationTime: Timestamp;
-    ReminderTime: Timestamp | null;
-    Priority: Priority;
-    Flagged: boolean;
-    Completed: boolean;
-}
-```
+    - 如果 id 对应 todo 存在
+
+    ```typescript
+    interface Todo {
+        Id: number;
+        Content: string;
+        Note: string | null;
+        CreationTime: Timestamp;
+        ReminderTime: Timestamp | null;
+        Priority: Priority;
+        Flagged: boolean;
+        Completed: boolean;
+    }
+    ```
+
+    - 否则返回 404
 
 2. 否则 400 Bad Request
 
@@ -71,7 +75,7 @@ interface Todo extends Record<string, unknown> {
 
 Payload:
 
-```
+```typescript
 const TodoInstance: TodoPartial = {
     Content: '',
     Note: null,
@@ -84,7 +88,11 @@ const TodoInstance: TodoPartial = {
 type TodoPartial = { [P in keyof Todo as Exclude<P, 'Id'> & Exclude<P, 'CreationTime'>]?: Todo[P] }
 ```
 
-返回 201 Created，和 Location: /todo/:id
+1. 如果 TodoPartial 合适
+
+    - 返回 201 Created 和 Location: /todo/:id
+
+2. 否则返回 400 Bad Request
 
 ### 修改 todo
 
@@ -92,7 +100,7 @@ type TodoPartial = { [P in keyof Todo as Exclude<P, 'Id'> & Exclude<P, 'Creation
 
 Payload:
 
-```
+```typescript
 const TodoInstance: TodoPartial = {
     Content: '',
     Note: null,
@@ -109,14 +117,22 @@ type TodoPartial = { [P in keyof Todo as Exclude<P, 'Id'> & Exclude<P, 'Creation
 
 1. 如果 id 对应 todo 存在
 
-```
-204 No Content，头部 Content-Location: /todo/{id}
-```
+    - 204 No Content，头部 Content-Location: /todo/{id}
 
-2. 否则返回 404
+2. 如果收到的 todo 不合适，返回 400
+
+3. 否则返回 404
 
 ### 删除
 
 ``` DELETE /todo/{id} ```
 
-返回 200 OK 以及删除条目的 id
+1. 如果 id > 0 && id <= Number.MAX_VALUE
+
+    - 如果 id 对应 todo 存在
+
+        - 返回 200 OK 以及删除条目的 id
+
+    - 否则返回 404
+
+2. 否则返回 400 Bad Request

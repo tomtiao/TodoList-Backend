@@ -13,7 +13,7 @@ router.route('/')
             .sendStatus(204);
     })
     .all((_, res, next) => {
-        (res.locals.todoDao as TodoDao) = new TodoDaoImpl(res.locals.pool);
+        res.locals.todoDao = new TodoDaoImpl(res.locals.pool);
         next();
     })
     .get((req, res, next) => {
