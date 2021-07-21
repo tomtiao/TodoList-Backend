@@ -20,12 +20,12 @@ router.route('/')
             if (Object.keys(req.query).length > 0) {
                 next();
             } else {
-                (res.locals.todoDao as TodoDao).getAllTodo((err, result) => {
+                (res.locals.todoDao as TodoDao).getAllTodo((err, results) => {
                     if (err) {
                         console.error(err);
                         res.sendStatus(500);
                     } else {
-                        res.json(result);
+                        res.json(results);
                     }
                 });
             }
@@ -34,12 +34,12 @@ router.route('/')
                 if (req.query.kw.length === 0) {
                     res.json([]);
                 } else {
-                    (res.locals.todoDao as TodoDao).getTodoByKeyword(req.query.kw, (err, result) => {
+                    (res.locals.todoDao as TodoDao).getTodoByKeyword(req.query.kw, (err, results) => {
                         if (err) {
                             console.error(err);
                             res.sendStatus(500);
                         } else {
-                            res.json(result);
+                            res.json(results);
                         }
                     });
                 }

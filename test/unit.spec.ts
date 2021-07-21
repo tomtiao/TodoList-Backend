@@ -5,10 +5,11 @@ import { todo_id_options, todo_options, todo_path, Todo, TodoPartial } from '../
 import app from '../src/index'
 import { randomUUID } from 'crypto';
 chai.use(chaiHttp)
+const getType = Function.prototype.call.bind( Object.prototype.toString )
 
 describe(todo_path, function () {
-    describe('OPTIONS', function () {
-        it(`ALLOW header should contain ${todo_options}`, function (done) {
+    describe(`OPTIONS ${todo_path}`, function () {
+        it(`ALLOW header should be ${todo_options}`, function (done) {
             chai.request(app)
                 .options(todo_path)
                 .then(function (res) {
@@ -62,7 +63,7 @@ describe(todo_path, function () {
                 })
                 .catch(done)
         })
-        it(`should return 400 Bad Request when kw is not string`, function (done) {
+        it(`should return 400 Bad Request when kw is not a string`, function (done) {
             const query_path = `${todo_path}?kw[]=`;
             chai.request(app)
                 .get(query_path)
@@ -102,7 +103,7 @@ describe(todo_path, function () {
                 .get(todo_location)
                 .then(function (res) {
                     expect(res).to.have.status(200)
-                    expect(Object.prototype.toString.call(res.body)).eq('[object Object]')
+                    expect(getType(res.body)).eq('[object Object]')
                     expect(res.body.Content).eq(Content)
                     id = res.body.Id;
                     done()
@@ -114,7 +115,7 @@ describe(todo_path, function () {
                 .get(todo_location)
                 .then(function (res) {
                     expect(res).to.have.status(200)
-                    expect(Object.prototype.toString.call(res.body)).eq('[object Object]')
+                    expect(getType(res.body)).eq('[object Object]')
                     expect(typeof (res.body as Todo).CreationTime).eq('number')
                     done()
                 })
@@ -156,9 +157,18 @@ describe(`${todo_path}/id`, function () {
                 })
                 .catch(done)
         })
-        it(`should handle non-negative number and return 400`, function (done) {
+        it(`should handle negative number and return 400`, function (done) {
             chai.request(app)
                 .get(`${todo_path}/-1`)
+                .then(function (res) {
+                    expect(res).to.have.status(400)
+                    done()
+                })
+                .catch(done)
+        })
+        it(`should handle 0 and return 400`, function (done) {
+            chai.request(app)
+                .get(`${todo_path}/0`)
                 .then(function (res) {
                     expect(res).to.have.status(400)
                     done()
@@ -185,7 +195,7 @@ describe(`${todo_path}/id`, function () {
                 .get(`${todo_path}/${first_todo_id}`)
                 .then(function (res) {
                     expect(res).to.have.status(200)
-                    expect(Object.prototype.toString.call(res.body)).eq('[object Object]')
+                    expect(getType(res.body)).eq('[object Object]')
                     done()
                 })
                 .catch(done)
@@ -195,12 +205,10 @@ describe(`${todo_path}/id`, function () {
                 .get(`${todo_path}/${first_todo_id}`)
                 .then(function (res) {
                     expect(res).to.have.status(200)
-                    expect(Object.prototype.toString.call(res.body))
+                    expect(getType(res.body))
                         .eq('[object Object]')
-                    expect(Object.prototype.toString.call((res.body as Todo).Flagged))
-                        .eq('[object Boolean]')
-                    expect(Object.prototype.toString.call((res.body as Todo).Completed))
-                        .eq('[object Boolean]')
+                    expect(typeof (res.body as Todo).Flagged).eq('boolean')
+                    expect(typeof(res.body as Todo).Completed).eq('boolean')
                     done()
                 })
                 .catch(done)
@@ -219,12 +227,12 @@ describe(`${todo_path}/id`, function () {
     })
     describe('PUT', function () {
         it(`should return 404 if todo doesn't exist.`, function (done) {
-            const o: Partial<Todo> = {
+            const o: TodoPartial = {
                 Completed: true,
                 Flagged: true
             };
             chai.request(app)
-                .put(`${todo_path}/31209309532`)
+                .put(`${todo_path}/${Number.MAX_SAFE_INTEGER}`)
                 .send(o)
                 .then(function (res) {
                     expect(res).to.have.status(404)
@@ -243,13 +251,14 @@ describe(`${todo_path}/id`, function () {
                 .then(function (res) {
                     expect(res).to.have.status(201)
                     expect(res).to.have.header('Location', new RegExp(`${todo_path}/\\d+$`))
-                    id = +(res.get('Location').split('/')[2])
+                    const arr = res.get('Location').split('/')
+                    id = +(arr[arr.length - 1])
                     done()
                 })
                 .catch(done)
         })
         it(`should return 204 No Content. Content-Location header should be ${todo_path}/${id}.`, function (done) {
-            const o: Partial<Todo> = {
+            const o: TodoPartial = {
                 Completed: true,
                 Flagged: true
             };
@@ -280,7 +289,7 @@ describe(`${todo_path}/id`, function () {
                 .delete(`${todo_path}/${id}`)
                 .then(function (res) {
                     expect(res).to.have.status(200)
-                    expect(res).to.be.json;
+                    expect(res).to.be.json; 
                     expect(res.body).eq(id)
                     done()
                 })
@@ -289,7 +298,7 @@ describe(`${todo_path}/id`, function () {
     })
 
     describe('DELETE', function () {
-        it(`should return 404 if the corresponding todo doesn't exist.`, function (done) {
+        it(`should return 404 if the todo doesn't exist.`, function (done) {
             chai.request(app)
                 .delete(`${todo_id_path}/2333333333`)
                 .then(function (res) {
@@ -306,7 +315,8 @@ describe(`${todo_path}/id`, function () {
                     .then(function (res) {
                         expect(res).to.have.status(201)
                         expect(res).to.have.header('Location', new RegExp(`${todo_path}/\\d+$`))
-                        id = +(res.get('Location').split('/')[2])
+                        const arr = res.get('Location').split('/')
+                        id = +(arr[arr.length - 1])
                         done()
                     })
                     .catch(done)

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf dist/* && npx tsc",
     "start": "npm run build && node dist/src/index.js",
-    "test": "npm run build && npx mocha dist/test/unit.spec.js --exit"
+    "test": "npm run build && npx mocha dist/test/unit.spec.js --exit --enable-source-maps"
   },
   "repository": {
     "type": "git",

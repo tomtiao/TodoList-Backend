@@ -54,5 +54,5 @@ function castTodoToDbItem(todo: Todo | TodoPartial): ConvertedTodo | ConvertedTo
 export {
     ActualFieldPacket,
     castResultsToTodo,
-    castTodoToDbItem as castBoolToTiny
+    castTodoToDbItem
 }
