@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/tomtiao/TodoList-Backend#readme",
   "devDependencies": {
-    "@tsconfig/node14": "^1.0.0",
+    "@tsconfig/node16": "^1.0.2",
     "@types/chai": "^4.2.18",
     "@types/compression": "^1.7.0",
     "@types/cors": "^2.8.10",

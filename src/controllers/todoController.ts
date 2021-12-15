@@ -53,7 +53,7 @@ router.route('/')
             try {
                 newTodo = createTodoPartial(req.body);
             } catch (e) {
-                res.sendStatus(400);
+                res.status(400).json(e.message);
                 return;
             }
             (res.locals.todoDao as TodoDao).addTodo(newTodo, (err, id) => {
@@ -109,7 +109,7 @@ router.route('/:id')
         try {
             partialTodo = createTodoPartial(req.body);
         } catch (e) {
-            res.sendStatus(400);
+            res.status(400).json(e.message);
             return;
         }
         (res.locals.todoDao as TodoDao).updateTodo(id, partialTodo, (err, affectedRows) => {
