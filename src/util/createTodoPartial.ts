@@ -10,15 +10,15 @@ const expectedTypes: { [P in keyof TodoPartial]: string | string[] } = {
     Priority: '[object Number]',
     Flagged: '[object Boolean]',
     Completed: '[object Boolean]'
-}
+};
 
-const getType = Object.prototype.toString;
+const getType = Function.prototype.apply.bind(Object.prototype.toString);
 
 const isValidVal = (obj: Record<string, unknown>, k: keyof TodoPartial) => {
-    if (Array.isArray(expectedTypes[k])) {
-        return (expectedTypes[k] as string[]).indexOf(getType.call(obj[k])) !== -1;
-    }
-    return expectedTypes[k] === getType.call(obj[k]);
+    return Array.isArray(expectedTypes[k]) ?
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        expectedTypes[k]!.indexOf(getType(obj[k])) !== -1
+        : expectedTypes[k] === getType(obj[k]);
 };
 
 class ContentTooLong extends Error {
@@ -48,7 +48,7 @@ class InvalidValue extends Error {
  * @returns a TodoPartial, which is a Todo without property Id
  * @throws {ContentTooLong} if content's length is greater than CONTENT_MAXLEN
  * @throws {NoteTooLong} if note's length is greater than NOTE_MAXLEN
- * @throws {InvalidValue} if value's type is not those in Todo
+ * @throws {InvalidValue} if value's types are not those in Todo
  */
 export function createTodoPartial(o: Record<string, unknown>): TodoPartial {
     if (typeof o.Content === 'string' && o.Content.length > CONTENT_MAXLEN) {

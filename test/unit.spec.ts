@@ -5,7 +5,7 @@ import { todo_id_options, todo_options, todo_path, Todo, TodoPartial } from '../
 import app from '../src/index'
 import { randomUUID } from 'crypto';
 chai.use(chaiHttp)
-const getType = Function.prototype.call.bind( Object.prototype.toString )
+const getType = Function.prototype.apply.bind( Object.prototype.toString )
 
 describe(todo_path, function () {
     describe(`OPTIONS ${todo_path}`, function () {
